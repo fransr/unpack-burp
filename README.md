@@ -1,6 +1,6 @@
 # unpack-burp
 
-This is a small tool created by [Frans Rosén](https://twitter.com/fransrosen). Used to unpack base64:ed "Save items"-content from Burp.
+This is a small tool created by [Frans Rosén](https://twitter.com/fransrosen). For unpacking base64:ed "Save items"-content from Burp.
 
 This allows you to extract certain parts of the requests which allows you do to things like:
 

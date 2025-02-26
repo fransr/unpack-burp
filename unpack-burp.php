@@ -23,7 +23,17 @@ function handleItem($item, $extract) {
         $req = explode("\r\n\r\n", $req);
         $reqheaders = array_shift($req);
         $reqheaders = explode("\r\n", $reqheaders);
-        $reqpath = array_shift($reqheaders);
+        $reqline = array_shift($reqheaders);
+        $reqiheaders = [];
+        foreach($reqheaders as $headerval) {
+            $headerval = explode(': ', $headerval);
+            $reqhkey = strtolower(trim(array_shift($headerval)));
+            $reqiheaders[$reqhkey] = implode(': ', $headerval);
+        }
+        $reqpathpart = explode(' ', $reqline);
+        $reqmethod = array_shift($reqpathpart);
+        array_pop($reqpathpart);
+        $reqpath = implode(' ', $reqpathpart);
         $reqheaders = implode("\r\n", $reqheaders);
         $req = implode("\r\n\r\n", $req);
         $res = base64_decode($res);
@@ -31,6 +41,12 @@ function handleItem($item, $extract) {
         $resheaders = array_shift($res);
         $resheaders = explode("\r\n", $resheaders);
         $rescode = array_shift($resheaders);
+        $resiheaders = [];
+        foreach($resheaders as $headerval) {
+            $headerval = explode(': ', $headerval);
+            $reshkey = strtolower(trim(array_shift($headerval)));
+            $resiheaders[$reshkey] = implode(': ', $headerval);
+        }
         $resheaders = implode("\r\n", $resheaders);
         $res = implode("\r\n\r\n", $res);
         $rawoutput = preg_match('#re[qs][a-z]#', $extract);
@@ -38,6 +54,14 @@ function handleItem($item, $extract) {
         if (strpos($extract, 'reqp') !== false) {
             echo "\n";
             echo $reqpath;
+        }
+        if (strpos($extract, 'reqm') !== false) {
+            echo "\n";
+            echo $reqmethod;
+        }
+        if (strpos($extract, 'reql') !== false) {
+            echo "\n";
+            echo $reqline;
         }
         if (strpos($extract, 'reqh') !== false) {
             echo "\n";
@@ -55,29 +79,41 @@ function handleItem($item, $extract) {
             echo "\n";
             echo $resheaders;
         }
+        if (strpos($extract, 'resi') !== false) {
+            echo "\n";
+            echo $resiheaders;
+        }
         if (strpos($extract, 'resb') !== false) {
             echo "\n";
             echo $res;
         }
         $json = [];
         if (strpos($extract, 'jsonh') !== false || strpos($extract, 'all') !== false) {
+            $json['reqm'] = $reqmethod;
             $json['reqp'] = $reqpath;
+            $json['reql'] = $reqline;
             $json['reqh'] = $reqheaders;
+            $json['reqi'] = $reqiheaders;
             $json['resc'] = $rescode;
             $json['resh'] = $resheaders;
+            $json['resi'] = $resiheaders;
         }
         if (strpos($extract, 'jsonb') !== false || strpos($extract, 'all') !== false) {
             $json['reqb'] = $req;
             $json['resb'] = $res;
         }
         if (strpos($extract, 'jsonreq') !== false) {
+            $json['reqm'] = $reqmethod;
             $json['reqp'] = $reqpath;
+            $json['reql'] = $reqline;
             $json['reqh'] = $reqheaders;
+            $json['reqi'] = $reqiheaders;
             $json['reqb'] = $req;
         }
         if (strpos($extract, 'jsonres') !== false) {
             $json['resc'] = $rescode;
             $json['resh'] = $resheaders;
+            $json['resi'] = $resiheaders;
             $json['resb'] = $res;
         }
         if ($json) {
